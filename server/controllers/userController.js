@@ -20,7 +20,7 @@ const postLogin = async (req,res)=>{
           samSite: 'lax'
         })
         
-        return res.status(200).json('Login successful')
+        return res.status(200).json({userData, token})
       }
     }
 
@@ -50,7 +50,7 @@ const postSignup = async (req,res)=>{
           secure: false,
           samSite: 'lax'
         })
-        res.status(200).json('User successfully signed up')
+        res.status(200).json({userData, token})
       }
     }
     
@@ -63,7 +63,8 @@ const postSignup = async (req,res)=>{
 
 const getHome = async (req,res)=>{
   try {
-    console.log(req.cookies);
+    res.status(200).json(req.user)
+    
     
   } catch (error) {
     

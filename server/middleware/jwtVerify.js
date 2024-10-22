@@ -1,14 +1,13 @@
 import jwt from 'jsonwebtoken';
-import User from '../model/userModel';
+import User from '../model/userModel.js';
 
 const jwtVerify = async (req, res, next)=>{
   try {
-    
-    const {token} = req.body.cookies;;
+    const token = req.headers.authorization;
 
     const decodedValue = await jwt.verify(token, process.env.JWT_SECRET);
     if(decodedValue){
-      const user = await User.findById(decodedValue);
+      const user = await User.findById(decodedValue._id);
       if(user){
         req.user = user;
         next()

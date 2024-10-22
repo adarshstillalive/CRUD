@@ -1,18 +1,11 @@
-import React from 'react'
-import axiosInstance from '../utils/axiosInstance'
+
 
 const Home = () => {
-  
-  try {
-  } catch (error) {
-    
-  }
-
   return (
     <div>
-      Home
+      home
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

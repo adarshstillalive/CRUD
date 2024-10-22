@@ -1,16 +1,27 @@
-import {createBrowserRouter, Outlet, RouterProvider} from 'react-router-dom';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom';
 import Header from './components/Header';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Signup from './pages/Signup';
+import Profile from './pages/Profile'
+import { Provider, useSelector } from 'react-redux';
+import appStore from './redux/appStore';
+
+const ProtectedRoute = ({ children }) => {
+  const { token, isAdmin } = useSelector(state => state.user);
+  if (!token) return <Navigate to="/login" />;
+  return children;
+}
 
 
-const RootLayout = ()=>{
+const RootLayout = () => {
   return (
-  <div className="h-screen bg-black pb-96">
-    <Header />
-    <Outlet />
-  </div>
+    <div className="h-screen bg-black pb-96">
+      <Header />
+      <ProtectedRoute>
+        <Outlet />
+      </ProtectedRoute>
+    </div>
   )
 }
 
@@ -21,7 +32,7 @@ const appRoute = createBrowserRouter([
 
   },
   {
-    path:'/signup',
+    path: '/signup',
     element: <Signup />
 
   },
@@ -33,6 +44,10 @@ const appRoute = createBrowserRouter([
         path: '/',
         element: <Home />
       },
+      {
+        path: '/profile',
+        element: <Profile />
+      }
     ]
   }
 ])
@@ -41,7 +56,9 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={appRoute}/>
+      <Provider store={appStore}>
+        <RouterProvider router={appRoute} />
+      </Provider>
     </>
   )
 }

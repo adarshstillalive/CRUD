@@ -1,11 +1,14 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { checkEmail, checkPassword } from '../utils/validator'
-import axios from 'axios'
 import axiosInstance from '../utils/axiosInstance'
+import { useDispatch, useSelector } from 'react-redux'
+import { setCurrentUser, setError, setLoading, setToken } from '../redux/user/userSlice'
 
 const Login = () => {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
+  const {error, isLoading} = useSelector(state=>state.user)
   const [user, setUser] = useState({
     email: '',
     password: '',
@@ -13,13 +16,13 @@ const Login = () => {
 
   const [userError, setUserError] = useState({
     email: '',
-    password: '',
-    commonError: ''
+    password: ''
   })
 
   const handleSubmit = async (e)=>{
 
     e.preventDefault();
+    dispatch(setLoading(true))
     const emailError = checkEmail(user.email);
     const passwordError = checkPassword(user.password);
 
@@ -29,16 +32,19 @@ const Login = () => {
       if(!emailError && !passwordError){
         const response = await axiosInstance.post('/login',{user});
         if(response){
+          const {userData, token} = response.data
+          
+          dispatch(setCurrentUser(userData));
+          dispatch(setToken(token))
           navigate('/')
         }
       }
     } catch (error) {
-      if(error.response && error.response.data){
-        setUserError({...userError, commonError:error.response.data})
-      }else{
-        console.log(error);
-        
-      }
+      dispatch(setError(error.response?.data || 'Login failed'))
+      console.log(error);
+      
+    } finally {
+      dispatch(setLoading(false))
     }
 
   }
@@ -80,12 +86,13 @@ const Login = () => {
                 className='bg-customDarkBlue rounded-2xl focus:outline-none text-xl py-2 pl-6'
               />
             </div>
-            <div className='py-4 text-red-500 text-lg text-center'>{userError.commonError}</div>
+            <div className='py-4 text-red-500 text-lg text-center'>{error}</div>
             <button
               type='submit'
               className='bg-customSkyBlue rounded-2xl font-bold text-customDarkBlue w-full p-4 hover:bg-cyan-400 '
+              disabled={isLoading}
             >
-              Login
+              {isLoading? 'Loading...' : 'Login'}
             </button>
           </form>
 

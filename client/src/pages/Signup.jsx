@@ -2,8 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { checkEmail, checkName, checkPassword } from '../utils/validator.js';
 import axiosInstance from '../utils/axiosInstance.js';
+import {useDispatch, useSelector} from 'react-redux';
+import { setCurrentUser, setError, setLoading, setToken } from '../redux/user/userSlice.js';
 
 const Signup = () => {
+  const dispatch = useDispatch()
+  const {error, isLoading} = useSelector(state=>state.user)
   const navigate = useNavigate()
   const [user, setUser] = useState({
     name: '',
@@ -15,11 +19,11 @@ const Signup = () => {
     name: '',
     email: '',
     password: '',
-    exist: ''
   })
 
   const handleSubmit = async (e)=>{
     e.preventDefault();
+    dispatch(setLoading(true))
 
     const nameError = checkName(user.name);
     const emailError = checkEmail(user.email);
@@ -33,20 +37,18 @@ const Signup = () => {
         })
         console.log(res.data);
         
-        if(data){
+        if(res.data){
+          const {userData, token} = res.data
+          dispatch(setCurrentUser(userData))
+          dispatch(setToken(token))
           navigate('/')
         }
       }
       
     } catch (error) {
-      if(error.response && error.response.data){
-        setUserError({...userError, exist: error.response.data})
-      }else{
-        console.log(error);
-        
-      }
-      
-      
+      dispatch(setError(error.response?.data || 'Sign up failed'))
+    } finally {
+      dispatch(setLoading(false))
     }
   }
 
@@ -103,13 +105,14 @@ const Signup = () => {
               />
             </div>
 
-            <div className='py-4 text-red-500 text-lg text-center'>{userError.exist}</div>
+            <div className='py-4 text-red-500 text-lg text-center'>{error}</div>
 
             <button
               type='submit'
               className='bg-customSkyBlue rounded-2xl font-bold text-customDarkBlue w-full p-4 hover:bg-cyan-400 '
+              disabled={isLoading}
             >
-              Sign up
+              {isLoading? 'Loading...' : 'Sign up'}
             </button>
           </form>
 
