@@ -1,11 +1,21 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
+import axiosInstance from '../../utils/axiosInstance';
+
+
+const getInitialToken = () => {
+  try {
+    return localStorage.getItem('token') || null;
+  } catch {
+    return null;
+  }
+};
 
 const userSlice = createSlice({
   name:'user',
   initialState: {
     users:  [],
     currentUser: null,
-    token: localStorage.getItem('token'),
+    token: getInitialToken(),
     isAdmin: false,
     isLoading: false,
     error: null
@@ -35,8 +45,42 @@ const userSlice = createSlice({
       state.token = null;
       localStorage.removeItem('token')
     }
+  },
+  extraReducers: (builder)=>{
+    builder
+    .addCase(fetchCurrentUser.pending, (state)=>{
+      state.isLoading = true;
+      state.error = null;
+    })
+    .addCase(fetchCurrentUser.fulfilled, (state, action)=>{
+      state.isLoading = false;
+      state.currentUser = action.payload;
+      state.error = null
+    })
+    .addCase(fetchCurrentUser.rejected, (state, action)=>{
+      state.isLoading = false;
+      state.currentUser = null;
+      state.error = action.payload;
+    })
   }
 })
+
+export const fetchCurrentUser = createAsyncThunk(
+  'user/fetchCurrentUser',
+  async (_, {rejectWithValue})=>{
+    try {
+      const token = localStorage.getItem('token')|| null
+      if(!token) return rejectWithValue('No Token Found')
+
+        const res = await axiosInstance.get('/currentUser')
+        return res.data
+        
+    } catch (error) {
+      localStorage.removeItem('token');
+      return rejectWithValue(error.response?.data || 'Failed to fetch the user')
+    }
+  }
+)
 
 export const {
   setUsers, 

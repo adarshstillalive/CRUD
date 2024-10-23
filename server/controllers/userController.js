@@ -2,6 +2,15 @@ import bcrypt from 'bcrypt';
 import User from '../model/userModel.js';
 import jwt from 'jsonwebtoken';
 
+const getCurrentUser = async (req,res)=>{
+  try {
+
+    res.status(200).json(req.user)
+  } catch (error) {
+    res.status(500).json(error)
+  }
+}
+
 const postLogin = async (req,res)=>{
   try {
     const {email, password} = req.body.user;
@@ -71,11 +80,32 @@ const getHome = async (req,res)=>{
   }
 }
 
+const postProfilePic = async (req,res)=>{
+  try {
+    
+    const profilePic = `/uploads/${req.file.filename}`;
+
+    const user = req.user;
+    user.ProfilePic = profilePic
+    await user.save();
+    console.log(user);
+    
+    res.status(200).json({user})
+
+  } catch (error) {
+    console.log(error);
+    
+  }
+}
+
 
 
 export default {
+  getCurrentUser,
   postLogin, 
   postSignup,
-  getHome
+  getHome,
+  postProfilePic,
+
   
 }

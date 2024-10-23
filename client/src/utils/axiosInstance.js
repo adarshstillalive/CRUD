@@ -1,5 +1,4 @@
 import axios from "axios";
-import appStore from "../redux/appStore";
 
 const axiosInstance = axios.create({
   baseURL:"http://localhost:3000",
@@ -7,7 +6,7 @@ const axiosInstance = axios.create({
 })
 
 axiosInstance.interceptors.request.use(config=>{
-  const token = appStore.getState().user.token;
+  const token = localStorage.getItem('token');
   if(token){
     config.headers.Authorization = token;
   }

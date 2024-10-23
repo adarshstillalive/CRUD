@@ -5,7 +5,7 @@ import {MdLogout} from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux'
 import { setLogout } from '../redux/user/userSlice'
 
-const Header = () => {
+const HeaderAdmin = () => {
   const dispatch = useDispatch()
   const {currentUser} = useSelector(state=>state.user)
   const handleLogout = ()=>{
@@ -18,10 +18,6 @@ const Header = () => {
       <Link to='/' className='text-white font-bold text-xl hover:text-gray-300'>
         Home
       </Link>
-      <Link to='/profile' className='flex hover:bg-customBlue p-3 rounded-3xl'>
-        <FaUser className='text-white text-2xl hover:text-gray-300' />
-        <h2 className='pl-2 text-white font-semibold'>{currentUser?.Name}</h2>
-      </Link>
       <button onClick={handleLogout} className='flex hover:bg-customBlue p-3 rounded-3xl'>
         <MdLogout className='text-white text-2xl hover:text-gray-300' />
       </button>
@@ -29,4 +25,4 @@ const Header = () => {
   )
 }
 
-export default Header
+export default HeaderAdmin
