@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import {FaUser} from 'react-icons/fa'
 import {MdLogout} from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux'
-import { setLogout } from '../redux/user/userSlice'
+import { setLogout } from '../redux/slices/userSlice'
 
 const Header = () => {
   const dispatch = useDispatch()

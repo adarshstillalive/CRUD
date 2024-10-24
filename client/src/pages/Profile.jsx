@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import axiosInstance from '../utils/axiosInstance';
-import { setCurrentUser, setError, setLoading } from '../redux/user/userSlice';
+import userAxiosInstance from '../utils/userAxiosInstance';
+import { setCurrentUser, setError, setLoading } from '../redux/slices/userSlice';
 
 const Profile = () => {
   const dispatch = useDispatch()
@@ -28,7 +28,7 @@ const Profile = () => {
       console.log(formData);
       
       
-      const res = await axiosInstance.post('/uploadProfileImage', formData, {
+      const res = await userAxiosInstance.post('/uploadProfileImage', formData, {
         headers: {
           'Content-Type': 'multipart-form-data',
         }

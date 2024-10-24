@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 
 import userRoute from './routes/userRoute.js';
+import adminRoute from './routes/adminRoute.js';
 
 dotenv.config()
 
@@ -26,7 +27,7 @@ app.use('/uploads', express.static('uploads'))
 app.use(express.json())
 app.use(cookieParser())
 app.use('/', userRoute);
-// app.use('/admin', adminRoute);
+app.use('/admin', adminRoute);
 
 app.listen(PORT,()=>{
   console.log(`Server running on ${PORT}`);

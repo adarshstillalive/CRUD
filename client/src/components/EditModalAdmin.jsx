@@ -1,15 +1,14 @@
-import React, { useRef, useState } from 'react'
-import { RiUserAddLine } from "react-icons/ri";
-import { MdLogout } from 'react-icons/md'
-import { useDispatch } from 'react-redux'
-import { fetchCurrentAdmin, setAdminLogout } from '../redux/slices/adminSlice';
-import { checkEmail, checkName, checkPassword } from '../utils/validator';
-import adminAxiosInstance from '../utils/adminAxiosInstance';
+import React, { useEffect, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { checkEmail, checkName, checkPassword } from '../utils/validator'
+import adminAxiosInstance from '../utils/adminAxiosInstance'
+import { fetchCurrentAdmin } from '../redux/slices/adminSlice'
 
-const HeaderAdmin = () => {
+const EditModalAdmin = ({userId, onClose}) => {
+  const {users} = useSelector(state=>state.admin)
+  const getUser = users.find(user=>user._id===userId)
   const uploadInput = useRef(null)
   const [createUserModal, setCreateUserModal] = useState(false)
-  const [seachBar, setSearchBar] = useState(null)
   const [user, setUser] = useState({
     name: '',
     email: '',
@@ -21,72 +20,61 @@ const HeaderAdmin = () => {
     email: '',
     password: '',
   })
+
   const dispatch = useDispatch()
 
-  if(seachBar){
-    
-  }
+  useEffect(()=>{
+    if(getUser){
+      setUser({
+        name: getUser.Name || '',
+        email: getUser?.Email || '',
+        password: ''
+      })
+    }
+  },[getUser])
 
-  const handleLogout = () => {
-    dispatch(setAdminLogout());
-
-  }
   const handleInputButton = (e) => {
-    e.preventDefault()
-    uploadInput.current.click()
-  }
+    e.preventDefault();
+    uploadInput.current.click();
+  };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async(e)=>{
     e.preventDefault();
     const nameError = checkName(user.name);
     const emailError = checkEmail(user.email);
     const passwordError = checkPassword(user.password);
     setUserError({name: nameError, email: emailError, password: passwordError})
+
     try {
+      
       if(!nameError && !emailError && !passwordError){
         const formData = new FormData();
-        formData.append('name',user.name);
-        formData.append('email',user.email);
-        formData.append('password',user.password);
+        formData.append('name', user.name);
+        formData.append('email', user.email);
+        if(user.password){
+          formData.append('password', user.password)
+        }
         if(uploadInput?.current?.files[0]){
           formData.append('profilePic', uploadInput.current.files[0])
         }
-
-        const res = await adminAxiosInstance.post('/admin/createUser', formData)
-        if(res?.data){
-          setUser({name:'', email:'', password:''})
+        
+        const res = await adminAxiosInstance.put(`/admin/updateUser/${userId}`, formData)
+        if(res.data){
+          
           dispatch(fetchCurrentAdmin())
-          setCreateUserModal(false)
+          onClose()
         }
+        
       }
-      
+
     } catch (error) {
       console.log(error);
       
     }
-    
-
   }
 
   return (
-    <>
-      <div className="absolute top-8 w-10/12 px-12 flex items-center justify-between bg-customLightBlue rounded-full mx-32 h-16 z-50">
-        <button onClick={()=>setCreateUserModal(true)} className='flex hover:bg-customBlue p-3 text-white text-lg font-bold rounded-3xl'>
-          Create user
-          <RiUserAddLine className='text-white text-2xl hover:text-gray-300' />
-
-        </button>
-        <input 
-          className='h-full w-1/2 text-white text-lg px-4 font-bold bg-customDarkBlue focus:outline-none'
-          placeholder='Search'
-          onChange={(e)=>setSearchBar(e.target.value)}
-          ></input>
-        <button onClick={handleLogout} className='flex hover:bg-customBlue p-3 rounded-3xl'>
-          <MdLogout className='text-white text-2xl hover:text-gray-300' />
-        </button>
-      </div>
-      {createUserModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <form
             onSubmit={(e) => handleSubmit(e)}
             className="bg-customLightBlue w-1/3 p-4 rounded-3xl flex justify-center items-center gap-4"
@@ -157,7 +145,7 @@ const HeaderAdmin = () => {
               <div className="flex justify-around">
                 <button
                   type="button"
-                  onClick={() => setCreateUserModal(false)}
+                  onClick={onClose}
                   className="px-4 py-2 bg-red-600 rounded-2xl hover:bg-red-800"
                 >
                   Cancel
@@ -166,16 +154,13 @@ const HeaderAdmin = () => {
                   type="submit"
                   className="bg-customSkyBlue rounded-2xl font-bold text-customDarkBlue p-4 hover:bg-cyan-400"
                 >
-                  Create user
+                  Update user
                 </button>
               </div>
             </div>
           </form>
         </div>
-      )}
-
-    </>
   )
 }
 
-export default HeaderAdmin
+export default EditModalAdmin

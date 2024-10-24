@@ -1,10 +1,10 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import axiosInstance from '../../utils/axiosInstance';
+import userAxiosInstance from '../../utils/userAxiosInstance';
 
 
 const getInitialToken = () => {
   try {
-    return localStorage.getItem('token') || null;
+    return localStorage.getItem('userToken') || null;
   } catch {
     return null;
   }
@@ -13,25 +13,19 @@ const getInitialToken = () => {
 const userSlice = createSlice({
   name:'user',
   initialState: {
-    users:  [],
     currentUser: null,
     token: getInitialToken(),
-    isAdmin: false,
     isLoading: false,
     error: null
   },
   reducers: {
 
-    setUsers: (state, action)=>{
-      state.users = action.payload
-    },
     setCurrentUser: (state, action)=>{
       state.currentUser = action.payload;
-      state.isAdmin = action.payload?.IsAdmin===true
     },
     setToken: (state, action)=>{
       state.token = action.payload;
-      localStorage.setItem('token', action.payload)
+      localStorage.setItem('userToken', action.payload)
     },
     setError: (state, action)=>{
       state.error = action.payload
@@ -39,11 +33,10 @@ const userSlice = createSlice({
     setLoading: (state, action)=>{
       state.isLoading = action.payload
     },
-    setLogout: (state, action)=>{
+    setLogout: (state)=>{
       state.currentUser = null;
-      state.isAdmin = false;
       state.token = null;
-      localStorage.removeItem('token')
+      localStorage.removeItem('userToken')
     }
   },
   extraReducers: (builder)=>{
@@ -69,21 +62,21 @@ export const fetchCurrentUser = createAsyncThunk(
   'user/fetchCurrentUser',
   async (_, {rejectWithValue})=>{
     try {
-      const token = localStorage.getItem('token')|| null
+      const token = localStorage.getItem('userToken')|| null
+      
       if(!token) return rejectWithValue('No Token Found')
 
-        const res = await axiosInstance.get('/currentUser')
+        const res = await userAxiosInstance.get('/currentUser')
         return res.data
         
     } catch (error) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('userToken');
       return rejectWithValue(error.response?.data || 'Failed to fetch the user')
     }
   }
 )
 
 export const {
-  setUsers, 
   setCurrentUser, 
   setToken, 
   setError, 

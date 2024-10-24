@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { checkEmail, checkName, checkPassword } from '../utils/validator.js';
-import axiosInstance from '../utils/axiosInstance.js';
+import userAxiosInstance from '../utils/userAxiosInstance.js';
 import {useDispatch, useSelector} from 'react-redux';
-import { setCurrentUser, setError, setLoading, setToken } from '../redux/user/userSlice.js';
+import { setCurrentUser, setError, setLoading, setToken } from '../redux/slices/userSlice.js';
 
 const Signup = () => {
   const dispatch = useDispatch()
@@ -32,7 +32,7 @@ const Signup = () => {
     try {
 
       if(!nameError && !emailError && !passwordError){
-        const res = await axiosInstance.post('/signup',{
+        const res = await userAxiosInstance.post('/signup',{
           user
         })
         console.log(res.data);

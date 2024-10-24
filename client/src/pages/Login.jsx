@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { checkEmail, checkPassword } from '../utils/validator'
-import axiosInstance from '../utils/axiosInstance'
+import userAxiosInstance from '../utils/userAxiosInstance'
 import { useDispatch, useSelector } from 'react-redux'
-import { setCurrentUser, setError, setLoading, setToken } from '../redux/user/userSlice'
+import { setCurrentUser, setError, setLoading, setToken } from '../redux/slices/userSlice'
 
 const Login = () => {
   const dispatch = useDispatch()
@@ -30,13 +30,19 @@ const Login = () => {
 
     try {
       if(!emailError && !passwordError){
-        const response = await axiosInstance.post('/login',{user});
+        const response = await userAxiosInstance.post('/login',{user});
         if(response){
           const {userData, token} = response.data
           
+          if(userData.IsAdmin){
+            dispatch(setError('Not a valid user'))
+            return
+          }
+
           dispatch(setCurrentUser(userData));
           dispatch(setToken(token))
           navigate('/')
+          
         }
       }
     } catch (error) {
