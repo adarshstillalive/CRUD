@@ -66,15 +66,20 @@ const adminSlice = createSlice({
 
 export const fetchCurrentAdmin = createAsyncThunk(
   'admin/fetchCurrentAdmin',
-  async (_, {rejectWithValue})=>{
+  async (arg=null, {rejectWithValue})=>{
     try {
       const adminToken = localStorage.getItem('adminToken')|| null
       if(!adminToken) return rejectWithValue('No Token Found')
 
         const res = await adminAxiosInstance.get('/admin/currentAdmin')
         if(!res.data.user.IsAdmin) return rejectWithValue('Not an admin')
-        
-          return res.data
+          if(arg){
+            const filtered = res.data.users.filter(user => user.Name.toLowerCase().includes(arg.toLowerCase()));
+            res.data.users = filtered;
+            return res.data
+          }else{
+            return res.data
+          }
         
     } catch (error) {
       localStorage.removeItem('adminToken');

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { RiUserAddLine } from "react-icons/ri";
 import { MdLogout } from 'react-icons/md'
 import { useDispatch } from 'react-redux'
@@ -9,7 +9,7 @@ import adminAxiosInstance from '../utils/adminAxiosInstance';
 const HeaderAdmin = () => {
   const uploadInput = useRef(null)
   const [createUserModal, setCreateUserModal] = useState(false)
-  const [seachBar, setSearchBar] = useState(null)
+  const [searchBar, setSearchBar] = useState(null)
   const [user, setUser] = useState({
     name: '',
     email: '',
@@ -23,10 +23,10 @@ const HeaderAdmin = () => {
   })
   const dispatch = useDispatch()
 
-  if(seachBar){
-    
-  }
-
+  useEffect(()=>{
+    dispatch(fetchCurrentAdmin(searchBar))
+  },[searchBar])
+  
   const handleLogout = () => {
     dispatch(setAdminLogout());
 
@@ -79,6 +79,7 @@ const HeaderAdmin = () => {
         <input 
           className='h-full w-1/2 text-white text-lg px-4 font-bold bg-customDarkBlue focus:outline-none'
           placeholder='Search'
+          value={searchBar}
           onChange={(e)=>setSearchBar(e.target.value)}
           ></input>
         <button onClick={handleLogout} className='flex hover:bg-customBlue p-3 rounded-3xl'>
